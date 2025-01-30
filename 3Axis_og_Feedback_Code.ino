@@ -8,7 +8,7 @@ const int motorStepsPerRevolution = 200; // Motor steps per revolution (assuming
 const int microsteps = 32;               // Microsteps setting for TB6600
 const int stepsPerRevolution = 6400;     // Total steps per revolution with microstepping
 
-// Variables to hold user input for speed and direction
+// Variables to hold user input for speed and directio
 int speed = 0;        // Speed in microseconds between steps
 char direction = 'F'; // 'F' for forward, 'B' for backward
 bool running = false; // Motor running state
