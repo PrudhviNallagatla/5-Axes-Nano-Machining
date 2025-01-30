@@ -6,28 +6,28 @@
 // Z-Motor is the TOP-one
 
 // Pin definitions for all three axes
-const int X_STEP_PIN = 13;  // X axis PUL+ pin
-const int X_DIR_PIN = 29;   // X axis DIR+ pin
-const int X_EN_PIN = 27;    // X axis ENA+ pin (optional)
+const int X_STEP_PIN = 13; // X axis PUL+ pin
+const int X_DIR_PIN = 29;  // X axis DIR+ pin
+const int X_EN_PIN = 27;   // X axis ENA+ pin (optional)
 
-const int Y_STEP_PIN = 12;  // Y axis PUL+ pin
-const int Y_DIR_PIN = 33;   // Y axis DIR+ pin
-const int Y_EN_PIN = 35;    // Y axis ENA+ pin (optional)
+const int Y_STEP_PIN = 12; // Y axis PUL+ pin
+const int Y_DIR_PIN = 33;  // Y axis DIR+ pin
+const int Y_EN_PIN = 35;   // Y axis ENA+ pin (optional)
 
-const int Z_STEP_PIN = 11;  // Z axis PUL+ pin
-const int Z_DIR_PIN = 24;   // Z axis DIR+ pin
-const int Z_EN_PIN = 22;    // Z axis ENA+ pin (optional)
+const int Z_STEP_PIN = 11; // Z axis PUL+ pin
+const int Z_DIR_PIN = 24;  // Z axis DIR+ pin
+const int Z_EN_PIN = 22;   // Z axis ENA+ pin (optional)
 
 // Voltage feedback pin for Z-axis
-const int voltagePin = A0;  // Analog pin for voltage sensing
+const int voltagePin = A0; // Analog pin for voltage sensing
 
 // Motor parameters
 const int motorStepsPerRevolution = 200; // Steps per revolution (standard motor)
 
 // Microstepping settings for each axis (Current using DIP => 1.5 - 1.7 amps)
-const int xMicrosteps = 16;              // Microsteps setting for X-axis TB6600 (DIP = 001110)
-const int yMicrosteps = 1;              // Microsteps setting for Y-axis TB6600 (DIP = 110110)(More Torque Required)
-const int zMicrosteps = 32;               // Microsteps setting for Z-axis TB6600 (DIP = 000110)
+const int xMicrosteps = 16; // Microsteps setting for X-axis TB6600 (DIP = 001110)
+const int yMicrosteps = 1;  // Microsteps setting for Y-axis TB6600 (DIP = 110110)(More Torque Required)
+const int zMicrosteps = 32; // Microsteps setting for Z-axis TB6600 (DIP = 000110)
 
 // Effective steps per revolution for each axis
 const int xStepsPerRevolution = motorStepsPerRevolution * xMicrosteps;
@@ -35,8 +35,8 @@ const int yStepsPerRevolution = motorStepsPerRevolution * yMicrosteps;
 const int zStepsPerRevolution = motorStepsPerRevolution * zMicrosteps;
 
 // Variables to hold user input for speed and direction
-int xRpm = 0, yRpm = 0, zRpm = 0;         // Speed in RPM for each axis
-int xStepDelay = 0, yStepDelay = 0, zStepDelay = 0; // Delays in microseconds between steps
+int xRpm = 0, yRpm = 0, zRpm = 0;                          // Speed in RPM for each axis
+int xStepDelay = 0, yStepDelay = 0, zStepDelay = 0;        // Delays in microseconds between steps
 char xDirection = 'F', yDirection = 'F', zDirection = 'F'; // Directions for each axis
 bool xRunning = false, yRunning = false, zRunning = false; // Motor running states
 
@@ -44,7 +44,7 @@ bool xRunning = false, yRunning = false, zRunning = false; // Motor running stat
 bool closedLoopMode = false;
 
 // LCD parameters
-LiquidCrystal_I2C lcd(0x27, 16, 2);  // Set the LCD address to 0x27 for a 16 chars and 2 line display
+LiquidCrystal_I2C lcd(0x27, 16, 2); // Set the LCD address to 0x27 for a 16 chars and 2 line display
 
 // Coordinates
 int xCoord = 0;
@@ -58,7 +58,8 @@ unsigned long ValueR2 = 11740; // Resistor R2 value
 float voltage = 0.0;           // Sensed voltage
 const int inputResolution = 1023;
 
-void setup() {
+void setup()
+{
   // Set all pins as outputs
   pinMode(X_STEP_PIN, OUTPUT);
   pinMode(X_DIR_PIN, OUTPUT);
@@ -72,12 +73,12 @@ void setup() {
   pinMode(Z_DIR_PIN, OUTPUT);
   pinMode(Z_EN_PIN, OUTPUT);
 
-  pinMode(voltagePin, INPUT);  // Voltage sensing pin
+  pinMode(voltagePin, INPUT); // Voltage sensing pin
 
   // Enable all motors (optional)
-  digitalWrite(X_EN_PIN, LOW);  // LOW to enable
-  digitalWrite(Y_EN_PIN, LOW);  // LOW to enable
-  digitalWrite(Z_EN_PIN, LOW);  // LOW to enable
+  digitalWrite(X_EN_PIN, LOW); // LOW to enable
+  digitalWrite(Y_EN_PIN, LOW); // LOW to enable
+  digitalWrite(Z_EN_PIN, LOW); // LOW to enable
 
   // Start serial communication
   Serial.begin(9600);
@@ -94,26 +95,31 @@ void setup() {
   printHelp();
 }
 
-void loop() {
-  if (Serial.available() > 0) {
+void loop()
+{
+  if (Serial.available() > 0)
+  {
     String command = Serial.readStringUntil('\n');
     processCommand(command);
   }
 
   // Run motors for each axis if enabled
-  if (xRunning) {
+  if (xRunning)
+  {
     digitalWrite(X_STEP_PIN, HIGH);
     delayMicroseconds(xStepDelay / 2);
     digitalWrite(X_STEP_PIN, LOW);
     delayMicroseconds(xStepDelay / 2);
   }
-  if (yRunning) {
+  if (yRunning)
+  {
     digitalWrite(Y_STEP_PIN, HIGH);
     delayMicroseconds(yStepDelay / 2);
     digitalWrite(Y_STEP_PIN, LOW);
     delayMicroseconds(yStepDelay / 2);
   }
-  if (zRunning) {
+  if (zRunning)
+  {
     digitalWrite(Z_STEP_PIN, HIGH);
     delayMicroseconds(zStepDelay / 2);
     digitalWrite(Z_STEP_PIN, LOW);
@@ -121,12 +127,14 @@ void loop() {
   }
 
   // If in closed-loop mode, perform Z-axis control
-  if (closedLoopMode) {
+  if (closedLoopMode)
+  {
     closedLoopControlZ();
   }
 }
 
-void printHelp() {
+void printHelp()
+{
   Serial.println("\n=== 3-Axis Control Instructions ===");
   Serial.println("Commands (Everything is Case Insensitive):");
   Serial.println("XxxF : Set RPM for X-axis to xx and direction Forward");
@@ -140,17 +148,20 @@ void printHelp() {
   Serial.println("===============================");
 }
 
-void processCommand(String command) {
-  command.trim();  // Remove any whitespace
+void processCommand(String command)
+{
+  command.trim(); // Remove any whitespace
 
   // Help command
-  if (command.equalsIgnoreCase("H")) {
+  if (command.equalsIgnoreCase("H"))
+  {
     printHelp();
     return;
   }
 
   // Stop command
-  if (command.equalsIgnoreCase("S")) {
+  if (command.equalsIgnoreCase("S"))
+  {
     xRunning = yRunning = zRunning = false;
     closedLoopMode = false;
     Serial.println("Stopped all movement and exited closed-loop mode.");
@@ -158,31 +169,38 @@ void processCommand(String command) {
   }
 
   // RPM and direction commands for each axis
-  if (command.startsWith("X") || command.startsWith("Y") || command.startsWith("Z")) {
+  if (command.startsWith("X") || command.startsWith("Y") || command.startsWith("Z"))
+  {
     char axis = command.charAt(0);
     int rpm = command.substring(1, command.length() - 1).toInt();
     rpm = constrain(rpm, 1, 1000); // Constrain RPM to a valid range
 
     char dir = command.charAt(command.length() - 1);
-    if (dir == 'F' || dir == 'B') {
+    if (dir == 'F' || dir == 'B')
+    {
       int stepDelay;
       bool running = true;
 
-      if (axis == 'X') {
+      if (axis == 'X')
+      {
         stepDelay = 60000000 / (rpm * xStepsPerRevolution); // Calculate delay per step
         xRpm = rpm;
         xStepDelay = stepDelay;
         xDirection = dir;
         digitalWrite(X_DIR_PIN, (dir == 'F') ? HIGH : LOW);
         xRunning = running;
-      } else if (axis == 'Y') {
+      }
+      else if (axis == 'Y')
+      {
         stepDelay = 60000000 / (rpm * yStepsPerRevolution); // Calculate delay per step
         yRpm = rpm;
         yStepDelay = stepDelay;
         yDirection = dir;
         digitalWrite(Y_DIR_PIN, (dir == 'F') ? HIGH : LOW);
         yRunning = running;
-      } else if (axis == 'Z') {
+      }
+      else if (axis == 'Z')
+      {
         stepDelay = 60000000 / (rpm * zStepsPerRevolution); // Calculate delay per step
         zRpm = rpm;
         zStepDelay = stepDelay;
@@ -196,7 +214,9 @@ void processCommand(String command) {
       Serial.print(rpm);
       Serial.print(" RPM, direction: ");
       Serial.println((dir == 'F') ? "Forward" : "Backward");
-    } else {
+    }
+    else
+    {
       Serial.println("Invalid direction. Use 'F' for forward or 'B' for backward.");
     }
     return;
@@ -205,19 +225,23 @@ void processCommand(String command) {
   Serial.println("Invalid command. Type 'H' for help.");
 }
 
-void readVoltage() {
+void readVoltage()
+{
   int A0Value = analogRead(voltagePin);
   float voltage_sensed = A0Value * (arduinoVCC / (float)inputResolution);
   voltage = 10 * voltage_sensed * (1 + ((float)ValueR2 / (float)ValueR1));
 }
 
-void closedLoopControlZ() {
+void closedLoopControlZ()
+{
   readVoltage();
 
-  if (voltage >= 20.0) {
+  if (voltage >= 20.0)
+  {
     // Move Z-axis downward until voltage drops
-    digitalWrite(Z_DIR_PIN, LOW);  // Downward direction
-    while (voltage >= 20.0 && closedLoopMode) {
+    digitalWrite(Z_DIR_PIN, LOW); // Downward direction
+    while (voltage >= 20.0 && closedLoopMode)
+    {
       digitalWrite(Z_STEP_PIN, HIGH);
       delayMicroseconds(zStepDelay);
       digitalWrite(Z_STEP_PIN, LOW);
@@ -226,10 +250,13 @@ void closedLoopControlZ() {
       zCoord--;
       updateLCD();
     }
-  } else {
+  }
+  else
+  {
     // Move Z-axis upward until voltage rises
-    digitalWrite(Z_DIR_PIN, HIGH);  // Upward direction
-    while (voltage < 20.0 && closedLoopMode) {
+    digitalWrite(Z_DIR_PIN, HIGH); // Upward direction
+    while (voltage < 20.0 && closedLoopMode)
+    {
       digitalWrite(Z_STEP_PIN, HIGH);
       delayMicroseconds(zStepDelay);
       digitalWrite(Z_STEP_PIN, LOW);
@@ -243,7 +270,8 @@ void closedLoopControlZ() {
   Serial.println("Closed-loop control complete for current condition.");
 }
 
-void updateLCD() {
+void updateLCD()
+{
   // Clear the previous values
   lcd.setCursor(0, 0);
   lcd.print("X:");
@@ -252,11 +280,11 @@ void updateLCD() {
   lcd.print(yCoord);
   lcd.print(" Z:");
   lcd.print(zCoord);
-  lcd.print("   ");  // Overwrite any leftover characters
+  lcd.print("   "); // Overwrite any leftover characters
 
   lcd.setCursor(0, 1);
   lcd.print("V:");
-  lcd.print(voltage, 2);  // Print voltage with 2 decimal places
+  lcd.print(voltage, 2); // Print voltage with 2 decimal places
   lcd.print(" Mode:");
   lcd.print(closedLoopMode ? "ClsdZ" : "Open");
 }
